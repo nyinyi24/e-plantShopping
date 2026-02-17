@@ -1,96 +1,87 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem } from "./CartSlice";
-import CartItem from "./CartItem";
-import "./ProductList.css";
+import { Link } from "react-router-dom";
 
-function ProductList({ onHomeClick }) {
-  const [showCart, setShowCart] = useState(false);
-  const [addedItems, setAddedItems] = useState({});
+const plantsArray = [
+  {
+    category: "Indoor Plants",
+    plants: [
+      { name: "Snake Plant", price: 10, image: "/snake.jpg" },
+      { name: "Peace Lily", price: 12, image: "/lily.jpg" },
+      { name: "Spider Plant", price: 8, image: "/spider.jpg" },
+      { name: "Aloe Vera", price: 9, image: "/aloe.jpg" },
+      { name: "Fern", price: 11, image: "/fern.jpg" },
+      { name: "Rubber Plant", price: 15, image: "/rubber.jpg" },
+    ],
+  },
+  {
+    category: "Outdoor Plants",
+    plants: [
+      { name: "Rose", price: 14, image: "/rose.jpg" },
+      { name: "Tulip", price: 13, image: "/tulip.jpg" },
+      { name: "Sunflower", price: 10, image: "/sunflower.jpg" },
+      { name: "Lavender", price: 16, image: "/lavender.jpg" },
+      { name: "Hibiscus", price: 12, image: "/hibiscus.jpg" },
+      { name: "Daisy", price: 9, image: "/daisy.jpg" },
+    ],
+  },
+  {
+    category: "Succulents",
+    plants: [
+      { name: "Cactus", price: 7, image: "/cactus.jpg" },
+      { name: "Echeveria", price: 8, image: "/eche.jpg" },
+      { name: "Jade Plant", price: 11, image: "/jade.jpg" },
+      { name: "Agave", price: 13, image: "/agave.jpg" },
+      { name: "Sedum", price: 6, image: "/sedum.jpg" },
+      { name: "Haworthia", price: 9, image: "/haw.jpg" },
+    ],
+  },
+];
+
+export default function ProductList() {
   const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.cart.items);
 
-  const totalItems = useSelector((state) =>
-    state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
-  );
+  const [addedToCart, setAddedToCart] = useState({});
 
-  const plantsArray = [
-    {
-      category: "Air Purifying Plants",
-      plants: [
-        { name: "Snake Plant", cost: "$15", image: "https://cdn.pixabay.com/photo/2021/01/22/06/04/snake-plant-5939187_1280.jpg" },
-        { name: "Spider Plant", cost: "$12", image: "https://cdn.pixabay.com/photo/2018/07/11/06/47/chlorophytum-3530413_1280.jpg" },
-        { name: "Peace Lily", cost: "$18", image: "https://cdn.pixabay.com/photo/2019/06/12/14/14/peace-lilies-4269365_1280.jpg" },
-        { name: "Boston Fern", cost: "$20", image: "https://cdn.pixabay.com/photo/2020/04/30/19/52/boston-fern-5114414_1280.jpg" },
-        { name: "Rubber Plant", cost: "$17", image: "https://cdn.pixabay.com/photo/2020/02/15/11/49/flower-4850729_1280.jpg" },
-        { name: "Aloe Vera", cost: "$14", image: "https://cdn.pixabay.com/photo/2018/04/02/07/42/leaf-3283175_1280.jpg" }
-      ]
-    },
-    {
-      category: "Medicinal Plants",
-      plants: [
-        { name: "Chamomile", cost: "$15", image: "https://cdn.pixabay.com/photo/2016/08/19/19/48/flowers-1606041_1280.jpg" },
-        { name: "Peppermint", cost: "$13", image: "https://cdn.pixabay.com/photo/2017/07/12/12/23/peppermint-2496773_1280.jpg" },
-        { name: "Calendula", cost: "$12", image: "https://cdn.pixabay.com/photo/2019/07/15/18/28/flowers-4340127_1280.jpg" },
-        { name: "Echinacea", cost: "$16", image: "https://cdn.pixabay.com/photo/2014/12/05/03/53/echinacea-557477_1280.jpg" },
-        { name: "Lemon Balm", cost: "$14", image: "https://cdn.pixabay.com/photo/2019/09/16/07/41/balm-4480134_1280.jpg" },
-        { name: "Aloe Vera 2", cost: "$14", image: "https://cdn.pixabay.com/photo/2018/04/02/07/42/leaf-3283175_1280.jpg" }
-      ]
-    },
-    {
-      category: "Low Maintenance Plants",
-      plants: [
-        { name: "ZZ Plant", cost: "$25", image: "https://images.unsplash.com/photo-1632207691143-643e2a9a9361" },
-        { name: "Pothos", cost: "$10", image: "https://cdn.pixabay.com/photo/2018/11/15/10/32/plants-3816945_1280.jpg" },
-        { name: "Snake Plant 2", cost: "$15", image: "https://cdn.pixabay.com/photo/2021/01/22/06/04/snake-plant-5939187_1280.jpg" },
-        { name: "Succulent", cost: "$18", image: "https://cdn.pixabay.com/photo/2016/11/21/16/05/cacti-1846147_1280.jpg" },
-        { name: "Aglaonema", cost: "$22", image: "https://cdn.pixabay.com/photo/2014/10/10/04/27/aglaonema-482915_1280.jpg" },
-        { name: "Cast Iron Plant", cost: "$20", image: "https://cdn.pixabay.com/photo/2017/02/16/18/04/cast-iron-plant-2072008_1280.jpg" }
-      ]
-    }
-  ];
-
-  const handleAddToCart = (plant) => {
+  const handleAdd = (plant) => {
     dispatch(addItem(plant));
-    setAddedItems((prev) => ({
-      ...prev,
-      [plant.name]: true,
-    }));
+    setAddedToCart({ ...addedToCart, [plant.name]: true });
   };
 
-  if (showCart) {
-    return <CartItem onContinueShopping={() => setShowCart(false)} />;
-  }
+  const totalQuantity = cartItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
 
   return (
     <div>
       {/* Navbar */}
-      <div className="navbar">
-        <h2 onClick={onHomeClick}>Paradise Nursery</h2>
-        <div>
-          <button onClick={() => setShowCart(false)}>Plants</button>
-          <button onClick={() => setShowCart(true)}>
-            🛒 {totalItems}
-          </button>
-        </div>
-      </div>
+      <nav className="navbar">
+        <Link to="/">Home</Link>
+        <Link to="/plants">Plants</Link>
+        <Link to="/cart">Cart 🛒 ({totalQuantity})</Link>
+      </nav>
 
-      {/* Products */}
+      <h1>Our Plants</h1>
+
       {plantsArray.map((category, index) => (
         <div key={index}>
-          <h2 className="category">{category.category}</h2>
+          <h2>{category.category}</h2>
 
-          <div className="product-grid">
-            {category.plants.map((plant, i) => (
-              <div key={i} className="card">
+          <div className="plant-grid">
+            {category.plants.map((plant) => (
+              <div key={plant.name} className="plant-card">
                 <img src={plant.image} alt={plant.name} />
                 <h3>{plant.name}</h3>
-                <p>{plant.cost}</p>
+                <p>${plant.price}</p>
 
                 <button
-                  disabled={addedItems[plant.name]}
-                  onClick={() => handleAddToCart(plant)}
+                  disabled={addedToCart[plant.name]}
+                  onClick={() => handleAdd(plant)}
                 >
-                  {addedItems[plant.name]
+                  {addedToCart[plant.name]
                     ? "Added"
                     : "Add to Cart"}
                 </button>
@@ -102,5 +93,3 @@ function ProductList({ onHomeClick }) {
     </div>
   );
 }
-
-export default ProductList;
